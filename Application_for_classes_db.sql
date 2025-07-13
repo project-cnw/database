@@ -159,6 +159,22 @@ CREATE TABLE IF NOT EXISTS `notice` (
     FOREIGN KEY (school_id) REFERENCES school(school_id)
 );
 
+INSERT INTO school (
+    school_code,
+    school_name,
+    school_address,
+    school_contact_number,
+    school_email,
+    school_admin_username,
+    school_admin_password
+) VALUES
+(1001, '부산 코딩고등학교', '부산광역시 코딩구 코딩로 1', '051-123-4567', 'coding@school.com', 'admincoding', 'password1'),
+(1002, '부산 컴퓨터고등학교', '부산광역시 컴퓨터구 컴퓨터로 2', '051-234-5678', 'computer@school.com', 'admincomputer', 'password2'),
+(1003, '부산 아이티고등학교', '부산광역시 아이티구 아이티로 3', '051-345-6789', 'it@school.com', 'adminit', 'password3'),
+(1004, '부산 자바고등학교', '부산광역시 자바구 자바로 4', '051-456-7890', 'java@school.com','adminjava',  'password4'),
+(1005, '부산 백엔드 고등학교', '부산광역시 백엔드구 백엔드로 5', '051-567-8901', 'backend@school.com','adminbackend', 'password5');
+
+
 -- 과목 마스터 데이터 삽입 (학년별로 분류)
 INSERT INTO subject_master (subject_master_id, subject_name, subject_type, subject_affiliation, available_grades, description) VALUES
 
@@ -257,3 +273,13 @@ INSERT INTO subject_master (subject_master_id, subject_name, subject_type, subje
 ('CUL041', '교육학', 'ELECTIVE', 'COMMON', '3', '3학년 교육학 개론'),
 ('CUL042', '환경과학', 'ELECTIVE', 'COMMON', '3', '3학년 환경과학'),
 ('TECH041', '정보처리', 'ELECTIVE', 'COMMON', '3', '3학년 고급 컴퓨터');
+
+-- 인덱스 생성 (성능 최적화)
+CREATE INDEX idx_school_code ON school(school_code);
+CREATE INDEX idx_student_school ON student(school_id);
+CREATE INDEX idx_teacher_school ON teacher(school_id);
+CREATE INDEX idx_subject_school ON subject(school_id);
+CREATE INDEX idx_subject_master_type ON subject_master(subject_type);
+CREATE INDEX idx_lecture_school ON lecture(school_id);
+CREATE INDEX idx_course_registration_student ON course_registration(student_id);
+CREATE INDEX idx_course_history_student ON course_history(student_id);
