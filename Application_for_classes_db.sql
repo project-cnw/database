@@ -159,6 +159,20 @@ CREATE TABLE IF NOT EXISTS `notice` (
     FOREIGN KEY (school_id) REFERENCES school(school_id)
 );
 
+-- 문의사항
+CREATE TABLE IF NOT EXISTS `inquiry` (
+	inquiry_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    school_id BIGINT NOT NULL,
+    inquiry_title VARCHAR(255) NOT NULL,
+    inquiry_content TEXT NOT NULL,
+    inquiry_author_type ENUM('STUDENT', 'TEACHER') NOT NULL,
+    inquiry_author_id VARCHAR(30) NOT NULL,
+    inquiry_status ENUM('NEW', 'IN_PROGRESS', 'CLOSED') DEFAULT 'NEW',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY(school_id) REFERENCES school(school_id)
+);
+
 INSERT INTO school (
     school_code,
     school_name,
@@ -175,7 +189,7 @@ INSERT INTO school (
 (1005, '부산 백엔드 고등학교', '부산광역시 백엔드구 백엔드로 5', '051-567-8901', 'backend@school.com','adminbackend', 'password5');
 
 
--- 과목 마스터 데이터 삽입 (학년별로 분류)
+-- 과목 전체 목록 (학년별로 분류)
 INSERT INTO subject_master (subject_master_id, subject_name, subject_type, subject_affiliation, available_grades, description) VALUES
 
 -- ==================== 1학년 과목 ====================
