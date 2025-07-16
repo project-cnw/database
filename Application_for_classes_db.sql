@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS school (
     school_name VARCHAR(30) NOT NULL,
     school_address VARCHAR(255) NOT NULL,
     school_contact_number VARCHAR(20) NOT NULL,
-    school_code INT NOT NULL UNIQUE,
-    school_email VARCHAR(30) NOT NULL,
+    school_code INT UNIQUE NOT NULL,
+    school_email VARCHAR(30) UNIQUE NOT NULL,
     school_admin_username VARCHAR(50) UNIQUE NOT NULL,
     school_admin_password VARCHAR(255) NOT NULL
 );
