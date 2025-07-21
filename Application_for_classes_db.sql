@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS `email_verification` (
     email_verification_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     email_verification_email VARCHAR(255) NOT NULL,
     email_verification_token VARCHAR(255) NOT NULL,
+    email_verification_code VARCHAR(10) NOT NULL,
     email_verification_expires_at DATETIME NOT NULL,
     email_verification_is_verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -26,7 +27,9 @@ CREATE TABLE IF NOT EXISTS school (
     school_code INT UNIQUE NOT NULL,
     school_email VARCHAR(30) UNIQUE NOT NULL,
     school_admin_username VARCHAR(50) UNIQUE NOT NULL,
-    school_admin_password VARCHAR(255) NOT NULL
+    school_admin_password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- 과목 마스터 (전체 과목 목록)
@@ -36,7 +39,8 @@ CREATE TABLE IF NOT EXISTS `subject_master` (
     subject_type ENUM('REQUIRED', 'ELECTIVE') NOT NULL,
     subject_affiliation ENUM('LIBERAL_ARTS', 'NATURAL_SCIENCES', 'COMMON') NOT NULL,
     available_grades VARCHAR(20) NOT NULL,
-    description TEXT,
+    credits DECIMAL(2,1) NOT NULL DEFAULT 0.0,
+    description TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -85,6 +89,7 @@ CREATE TABLE IF NOT EXISTS `subject` (
     subject_affiliation ENUM('LIBERAL_ARTS', 'NATURAL_SCIENCES', 'COMMON') NOT NULL,
     subject_status ENUM('APPROVED', 'PENDING', 'REJECTED') DEFAULT 'PENDING',
     subject_max_enrollment INT NOT NULL,
+    subject_credits DECIMAL(2,1) NOT NULL DEFAULT 0.0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (school_id) REFERENCES school(school_id),
@@ -107,6 +112,7 @@ CREATE TABLE IF NOT EXISTS `student` (
     student_affiliation ENUM('LIBERAL_ARTS', 'NATURAL_SCIENCES') NOT NULL,
     student_status ENUM('PENDING', 'APPROVED','REJECTED', 'GRADUATED') DEFAULT 'PENDING',
     student_admission_year YEAR NOT NULL,
+    total_credits DECIMAL(2,1) DEFAULT 0.0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (school_id) REFERENCES school(school_id)
@@ -180,7 +186,7 @@ CREATE TABLE IF NOT EXISTS `inquiry` (
     inquiry_title VARCHAR(255) NOT NULL,
     inquiry_content TEXT NOT NULL,
     inquiry_author_type ENUM('STUDENT', 'TEACHER') NOT NULL,
-    inquiry_author_id VARCHAR(30) NOT NULL,
+    inquiry_author_id BIGINT NOT NULL,
     inquiry_status ENUM('NEW', 'IN_PROGRESS', 'CLOSED') DEFAULT 'NEW',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
