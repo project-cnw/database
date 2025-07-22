@@ -32,19 +32,6 @@ CREATE TABLE IF NOT EXISTS school (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- 과목 마스터 (전체 과목 목록)
-CREATE TABLE IF NOT EXISTS `subject_master` (
-    subject_master_id BIGINT PRIMARY KEY,
-    subject_name VARCHAR(50) NOT NULL,
-    subject_type ENUM('REQUIRED', 'ELECTIVE') NOT NULL,
-    subject_affiliation ENUM('LIBERAL_ARTS', 'NATURAL_SCIENCES', 'COMMON') NOT NULL,
-    available_grades VARCHAR(20) NOT NULL,
-    credits DECIMAL(2,1) NOT NULL DEFAULT 0.0,
-    description TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
 -- 관리자
 CREATE TABLE IF NOT EXISTS `admin` (
 	admin_id BIGINT PRIMARY KEY,
@@ -77,19 +64,30 @@ CREATE TABLE IF NOT EXISTS `teacher` (
     FOREIGN KEY (school_id) REFERENCES school(school_id)
 );
 
+-- 과목 마스터 (전체 과목 목록)
+CREATE TABLE IF NOT EXISTS `subject_master` (
+    subject_master_id BIGINT PRIMARY KEY,
+    subject_name VARCHAR(50) NOT NULL,
+    subject_type ENUM('REQUIRED', 'ELECTIVE') NOT NULL,
+    subject_affiliation ENUM('LIBERAL_ARTS', 'NATURAL_SCIENCES', 'COMMON') NOT NULL,
+    available_grades VARCHAR(20) NOT NULL,
+    credits DECIMAL(2,1) NOT NULL DEFAULT 0.0,
+    description TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- 과목 (각 학교별 과목 신청)
 CREATE TABLE IF NOT EXISTS `subject` (
     subject_id BIGINT PRIMARY KEY,
     school_id BIGINT NOT NULL,
     teacher_id BIGINT NOT NULL,
     subject_master_id BIGINT NOT NULL,
-    subject_name VARCHAR(50) NOT NULL,
     subject_grade VARCHAR(10) NOT NULL,
     subject_semester VARCHAR(10) NOT NULL,
-    subject_affiliation ENUM('LIBERAL_ARTS', 'NATURAL_SCIENCES', 'COMMON') NOT NULL,
     subject_status ENUM('APPROVED', 'PENDING', 'REJECTED') DEFAULT 'PENDING',
     subject_max_enrollment INT NOT NULL,
-    subject_credits DECIMAL(2,1) NOT NULL DEFAULT 0.0,
+    subject_semester ENUM('1학기', '2학기') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (school_id) REFERENCES school(school_id),
@@ -124,10 +122,16 @@ CREATE TABLE IF NOT EXISTS `lecture` (
     school_id BIGINT NOT NULL,
     subject_id BIGINT NOT NULL,
     teacher_id BIGINT NOT NULL,
+    lecture_name VARCHAR(100) NOT NULL,
+    lecture_code VARCHAR(30) NOT NULL,
+    academic_year YEAR NOT NULL DEFAULT 2025,
+    semester ENUM('1학기', '2학기') NOT NULL DEFAULT '1학기',
     lecture_day_of_week ENUM('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY') NOT NULL,
     lecture_period INT NOT NULL,
     lecture_allowed_grade VARCHAR(10) NOT NULL,
     lecture_max_enrollment INT NOT NULL,
+    lecture_current_enrollment INT DEFAULT 0,
+    classroom VARCHAR(50) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (subject_id) REFERENCES subject(subject_id),
@@ -141,7 +145,8 @@ CREATE TABLE IF NOT EXISTS `course_registration` (
     student_id BIGINT NOT NULL,
     lecture_id BIGINT NOT NULL,
     course_registration_academic_year YEAR NOT NULL,
-    course_registration_semester VARCHAR(10) NOT NULL,
+    registration_status ENUM('CART', 'APPLIED', 'APPROVED', 'CANCELLED') DEFAULT 'CART',
+    course_registration_semester ENUM('1학기', '2학기') NOT NULL DEFAULT '1학기',
     course_registration_approval_status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
     course_registration_approval_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     academic_status ENUM('ENROLLED', 'COMPLETED', 'WITHDRAWN') NOT NULL,
@@ -157,7 +162,7 @@ CREATE TABLE IF NOT EXISTS `course_history` (
     student_id BIGINT NOT NULL,
     lecture_id BIGINT NOT NULL,
     course_history_academic_year YEAR NOT NULL,
-    course_history_semester VARCHAR(10) NOT NULL,
+    course_history_semester ENUM('1학기', '2학기') NOT NULL,
     course_history_score VARCHAR(10) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -169,11 +174,15 @@ CREATE TABLE IF NOT EXISTS `course_history` (
 CREATE TABLE IF NOT EXISTS `notice` (
     notice_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     school_id BIGINT NOT NULL,
+    author_id BIGINT NOT NULL,
+    author_type ENUM('ADMIN','TEACHER') NOT NULL,
+    author_name VARCHAR(50) NOT NULL DEFAULT '교무처',
     notice_title VARCHAR(255) NOT NULL,
     notice_content TEXT NOT NULL,
     notice_target_audience ENUM('ALL', 'STUDENT', 'TEACHER') NOT NULL,
     notice_start_date DATE NOT NULL,
     notice_end_date DATE NOT NULL,
+    notice_view_count INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (school_id) REFERENCES school(school_id)
@@ -307,13 +316,3 @@ INSERT INTO subject_master (subject_master_id, subject_name, subject_type, subje
 ('CUL041', '교육학', 'ELECTIVE', 'COMMON', '3', '3학년 교육학 개론'),
 ('CUL042', '환경과학', 'ELECTIVE', 'COMMON', '3', '3학년 환경과학'),
 ('TECH041', '정보처리', 'ELECTIVE', 'COMMON', '3', '3학년 고급 컴퓨터');
-
--- 인덱스 생성 (성능 최적화)
-CREATE INDEX idx_school_code ON school(school_code);
-CREATE INDEX idx_student_school ON student(school_id);
-CREATE INDEX idx_teacher_school ON teacher(school_id);
-CREATE INDEX idx_subject_school ON subject(school_id);
-CREATE INDEX idx_subject_master_type ON subject_master(subject_type);
-CREATE INDEX idx_lecture_school ON lecture(school_id);
-CREATE INDEX idx_course_registration_student ON course_registration(student_id);
-CREATE INDEX idx_course_history_student ON course_history(student_id);
