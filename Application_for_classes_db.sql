@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `admin` (
 
 -- 교사
 CREATE TABLE IF NOT EXISTS `teacher` (
-    teacher_id BIGINT PRIMARY KEY,
+    teacher_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     school_id BIGINT NOT NULL,
     teacher_username VARCHAR(50) UNIQUE NOT NULL,
     teacher_password VARCHAR(255) NOT NULL,
@@ -66,7 +66,8 @@ CREATE TABLE IF NOT EXISTS `teacher` (
 
 -- 과목 마스터 (전체 과목 목록)
 CREATE TABLE IF NOT EXISTS `subject_master` (
-    subject_master_id BIGINT PRIMARY KEY,
+    subject_master_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    subject_code VARCHAR(30) UNIQUE NOT NULL,
     subject_name VARCHAR(50) NOT NULL,
     subject_type ENUM('REQUIRED', 'ELECTIVE') NOT NULL,
     subject_affiliation ENUM('LIBERAL_ARTS', 'NATURAL_SCIENCES', 'COMMON') NOT NULL,
@@ -79,12 +80,11 @@ CREATE TABLE IF NOT EXISTS `subject_master` (
 
 -- 과목 (각 학교별 과목 신청)
 CREATE TABLE IF NOT EXISTS `subject` (
-    subject_id BIGINT PRIMARY KEY,
+    subject_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     school_id BIGINT NOT NULL,
     teacher_id BIGINT NOT NULL,
     subject_master_id BIGINT NOT NULL,
     subject_grade VARCHAR(10) NOT NULL,
-    subject_semester VARCHAR(10) NOT NULL,
     subject_status ENUM('APPROVED', 'PENDING', 'REJECTED') DEFAULT 'PENDING',
     subject_max_enrollment INT NOT NULL,
     subject_semester ENUM('1학기', '2학기') NOT NULL,
@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `subject` (
 
 -- 학생
 CREATE TABLE IF NOT EXISTS `student` (
-    student_id BIGINT PRIMARY KEY,
+    student_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     school_id BIGINT NOT NULL,
     student_username VARCHAR(50) UNIQUE NOT NULL,
     student_password VARCHAR(255) NOT NULL,
