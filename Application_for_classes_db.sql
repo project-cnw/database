@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS `course_registration` (
     course_registration_semester ENUM('1학기', '2학기') NOT NULL DEFAULT '1학기',
     course_registration_approval_status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
     course_registration_approval_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    academic_status ENUM('ENROLLED', 'COMPLETED', 'WITHDRAWN') NOT NULL,
+    academic_status ENUM('ENROLLED', 'COMPLETED', 'NOT_ENROLLED') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (student_id) REFERENCES student(student_id),
@@ -226,11 +226,10 @@ INSERT INTO subject_master (subject_code, subject_name, subject_type, subject_af
 ('ENG001', '영어', 'REQUIRED', 'COMMON', '1', 3.0, '1학년 기본 영어'),
 ('SOC001', '통합사회', 'REQUIRED', 'COMMON', '1', 3.0, '1학년 사회 통합 과목'),
 ('SCI001', '통합과학', 'REQUIRED', 'COMMON', '1', 3.0, '1학년 과학 통합 과목'),
-('SCI002', '과학탐구실험', 'REQUIRED', 'COMMON', '1', 3.0, '1학년 과학 실험'),
 ('PE001', '체육', 'REQUIRED', 'COMMON', '1', 3.0, '1학년 체육'),
-('TECH001', '기술·가정', 'REQUIRED', 'COMMON', '1', 3.0, '1학년 기술과 가정'),
 
 -- 1학년 선택과목
+('TECH001', '기술·가정', 'ELECTIVE', 'COMMON', '1', 3.0, '1학년 기술과 가정'),
 ('ART001', '음악', 'ELECTIVE', 'COMMON', '1', 3.0, '1학년 음악 교육'),
 ('ART002', '미술', 'ELECTIVE', 'COMMON', '1', 3.0, '1학년 미술 교육'),
 ('TECH002', '정보', 'ELECTIVE', 'COMMON', '1', 3.0, '1학년 컴퓨터 정보'),
@@ -273,6 +272,10 @@ INSERT INTO subject_master (subject_code, subject_name, subject_type, subject_af
 -- ==================== 3학년 과목 ====================
 -- 3학년 필수과목
 ('KOR031', '문학', 'REQUIRED', 'COMMON', '3', 3.0, '3학년 한국 문학'),
+('MATH031', '확률과 통계', 'REQUIRED', 'COMMON', '3', 3.0, '3학년 확률과 통계'),
+('MATH032', '미적분', 'REQUIRED', 'COMMON', '3', 3.0, '3학년 미적분'),
+('ENG031', '영어Ⅱ', 'REQUIRED', 'COMMON', '3', 3.0, '3학년 영어Ⅱ'),
+('ENG032', '영어독해와 작문', 'REQUIRED', 'COMMON', '3', 3.0, '3학년 영어독해와 작문'),
 ('SOC031', '한국사', 'REQUIRED', 'COMMON', '3', 3.0, '3학년 한국사 심화'),
 ('PE031', '체육', 'REQUIRED', 'COMMON', '3', 3.0, '3학년 체육'),
 
@@ -296,9 +299,8 @@ INSERT INTO subject_master (subject_code, subject_name, subject_type, subject_af
 -- 3학년 진로선택과목
 ('CAR041', '실용국어', 'ELECTIVE', 'COMMON', '3', 3.0, '3학년 실생활 국어'),
 ('CAR042', '실용수학', 'ELECTIVE', 'COMMON', '3', 3.0, '3학년 실생활 수학'),
-('CAR043', '실용영어', 'ELECTIVE', 'COMMON', '3', 3.0, '3학년 실생활 영어'),
-('CAR044', '창의경영', 'ELECTIVE', 'COMMON', '3', 3.0, '3학년 창업과 경영'),
-('CAR045', '사회봉사', 'ELECTIVE', 'COMMON', '3', 3.0, '3학년 사회봉사활동'),
+('CAR043', '창의경영', 'ELECTIVE', 'COMMON', '3', 3.0, '3학년 창업과 경영'),
+('CAR044', '사회봉사', 'ELECTIVE', 'COMMON', '3', 3.0, '3학년 사회봉사활동'),
 
 -- 3학년 제2외국어 심화
 ('FOR041', '중국어Ⅱ', 'ELECTIVE', 'COMMON', '3', 3.0, '3학년 중국어 심화'),
@@ -307,8 +309,8 @@ INSERT INTO subject_master (subject_code, subject_name, subject_type, subject_af
 ('FOR044', '스페인어Ⅰ', 'ELECTIVE', 'COMMON', '3', 3.0, '3학년 스페인어 기초'),
 
 -- 3학년 교양/예체능
-('ADV043', '심화영어', 'ELECTIVE', 'COMMON', '3', 3.0, '3학년 영어 심화과정'),
-('ENG041', '영어독해와 작문', 'ELECTIVE', 'COMMON', '3', 3.0, '3학년 영어 읽기와 쓰기'),
+('ENG041', '심화영어', 'ELECTIVE', 'COMMON', '3', 3.0, '3학년 영어 심화과정'),
+('ENG042', '영미문학', 'ELECTIVE', 'LIBERAL_ARTS', '3', 3.0, '3학년 영미문학 개론'),
 ('ART041', '음악 창작', 'ELECTIVE', 'COMMON', '3', 3.0, '3학년 음악 창작'),
 ('ART042', '미술 창작', 'ELECTIVE', 'COMMON', '3', 3.0, '3학년 미술 창작'),
 ('CUL041', '교육학', 'ELECTIVE', 'COMMON', '3', 3.0, '3학년 교육학 개론'),
