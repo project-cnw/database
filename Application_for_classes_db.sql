@@ -71,9 +71,9 @@ CREATE TABLE IF NOT EXISTS `subject_master` (
     subject_name VARCHAR(50) NOT NULL,
     subject_type ENUM('REQUIRED', 'ELECTIVE') NOT NULL,
     subject_affiliation ENUM('LIBERAL_ARTS', 'NATURAL_SCIENCES', 'COMMON') NOT NULL,
-    available_grades VARCHAR(20) NOT NULL,
-    credits DECIMAL(2,1) NOT NULL DEFAULT 3.0,
-    description TEXT NOT NULL,
+    subject_available_grades VARCHAR(20) NOT NULL,
+    subject_credits DECIMAL(2,1) NOT NULL DEFAULT 3.0,
+    subject_description TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -84,6 +84,7 @@ CREATE TABLE IF NOT EXISTS `subject` (
     school_id BIGINT NOT NULL,
     teacher_id BIGINT NOT NULL,
     subject_master_id BIGINT NOT NULL,
+    subject_type ENUM('REQUIRED', 'ELECTIVE') NOT NULL DEFAULT 'ELECTIVE',
     subject_grade VARCHAR(10) NOT NULL,
     subject_status ENUM('APPROVED', 'PENDING', 'REJECTED') DEFAULT 'PENDING',
     subject_max_enrollment INT NOT NULL,
@@ -110,7 +111,7 @@ CREATE TABLE IF NOT EXISTS `student` (
     student_affiliation ENUM('LIBERAL_ARTS', 'NATURAL_SCIENCES') NOT NULL,
     student_status ENUM('PENDING', 'APPROVED','REJECTED', 'GRADUATED') DEFAULT 'PENDING',
     student_admission_year YEAR NOT NULL,
-    total_credits DECIMAL(5,1) DEFAULT 192.0,
+    student_total_credits DECIMAL(5,1) DEFAULT 192.0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (school_id) REFERENCES school(school_id)
@@ -124,14 +125,14 @@ CREATE TABLE IF NOT EXISTS `lecture` (
     teacher_id BIGINT NOT NULL,
     lecture_name VARCHAR(100) NOT NULL,
     lecture_code VARCHAR(30) NOT NULL,
-    academic_year YEAR NOT NULL DEFAULT 2025,
-    semester ENUM('1학기', '2학기') NOT NULL DEFAULT '1학기',
+    lecture_academic_year YEAR NOT NULL DEFAULT 2025,
+    lecture_semester ENUM('1학기', '2학기') NOT NULL DEFAULT '1학기',
     lecture_day_of_week ENUM('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY') NOT NULL,
     lecture_period INT NOT NULL,
     lecture_allowed_grade VARCHAR(10) NOT NULL,
     lecture_max_enrollment INT NOT NULL,
     lecture_current_enrollment INT DEFAULT 0,
-    classroom VARCHAR(50) NOT NULL,
+    lecture_classroom VARCHAR(50) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (subject_id) REFERENCES subject(subject_id),
@@ -141,15 +142,14 @@ CREATE TABLE IF NOT EXISTS `lecture` (
 
 -- 수강 신청
 CREATE TABLE IF NOT EXISTS `course_registration` (
-    registration_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    course_registration_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     student_id BIGINT NOT NULL,
     lecture_id BIGINT NOT NULL,
     course_registration_academic_year YEAR NOT NULL,
-    registration_status ENUM('CART', 'APPLIED', 'APPROVED', 'CANCELLED') DEFAULT 'CART',
+    course_registration_status ENUM('CART', 'APPLIED', 'APPROVED', 'CANCELLED') DEFAULT 'CART',
     course_registration_semester ENUM('1학기', '2학기') NOT NULL DEFAULT '1학기',
     course_registration_approval_status ENUM('PENDING', 'APPROVED', 'REJECTED') DEFAULT 'PENDING',
-    course_registration_approval_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    academic_status ENUM('ENROLLED', 'COMPLETED', 'NOT_ENROLLED') NOT NULL,
+    course_registration_academic_status ENUM('ENROLLED', 'COMPLETED', 'NOT_ENROLLED') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (student_id) REFERENCES student(student_id),
@@ -173,9 +173,8 @@ CREATE TABLE IF NOT EXISTS `course_history` (
 CREATE TABLE IF NOT EXISTS `notice` (
     notice_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     school_id BIGINT NOT NULL,
-    author_id BIGINT NOT NULL,
-    author_type ENUM('ADMIN','TEACHER') NOT NULL,
-    author_name VARCHAR(50) NOT NULL DEFAULT '교무처',
+    notice_author_type ENUM('ADMIN','TEACHER') NOT NULL,
+    notice_author_name VARCHAR(50) NOT NULL DEFAULT '교무처',
     notice_title VARCHAR(255) NOT NULL,
     notice_content TEXT NOT NULL,
     notice_target_audience ENUM('ALL', 'STUDENT', 'TEACHER') NOT NULL,
@@ -194,7 +193,6 @@ CREATE TABLE IF NOT EXISTS `inquiry` (
     inquiry_title VARCHAR(255) NOT NULL,
     inquiry_content TEXT NOT NULL,
     inquiry_author_type ENUM('STUDENT', 'TEACHER') NOT NULL,
-    inquiry_author_id BIGINT NOT NULL,
     inquiry_status ENUM('NEW', 'IN_PROGRESS', 'CLOSED') DEFAULT 'NEW',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -210,14 +208,9 @@ INSERT INTO school (
     school_admin_username,
     school_admin_password
 ) VALUES
-(1001, '부산 코딩고등학교', '부산광역시 코딩구 코딩로 1', '051-123-4567', 'coding@school.com', 'admincoding', 'password1'),
-(1002, '부산 컴퓨터고등학교', '부산광역시 컴퓨터구 컴퓨터로 2', '051-234-5678', 'computer@school.com', 'admincomputer', 'password2'),
-(1003, '부산 아이티고등학교', '부산광역시 아이티구 아이티로 3', '051-345-6789', 'it@school.com', 'adminit', 'password3'),
-(1004, '부산 자바고등학교', '부산광역시 자바구 자바로 4', '051-456-7890', 'java@school.com','adminjava',  'password4'),
-(1005, '부산 백엔드 고등학교', '부산광역시 백엔드구 백엔드로 5', '051-567-8901', 'backend@school.com','adminbackend', 'password5');
-
+(1001, '부산 코딩고등학교', '부산광역시 코딩구 코딩로 1', '051-123-4567', 'coding@school.com', 'admincoding', 'password1');
 -- 과목 전체 목록 (학년별로 분류)
-INSERT INTO subject_master (subject_code, subject_name, subject_type, subject_affiliation, available_grades, credits, description) VALUES
+INSERT INTO subject_master (subject_code, subject_name, subject_type, subject_affiliation, subject_available_grades, subject_credits, subject_description) VALUES
 
 -- ==================== 1학년 과목 ====================
 -- 1학년 필수과목
